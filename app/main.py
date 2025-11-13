@@ -3,16 +3,23 @@ import tempfile
 import shutil
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from pytesseract import pytesseract
+import platform
 
-
-TESSERACT_CMD = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-TESSDATA_PREFIX = r"C:\Program Files\Tesseract-OCR\tessdata"
-POPPLER_PATH = r"C:\Poppler\poppler-25.07.0\Library\bin"
-
+# 🔧 Detecta ambiente (Windows vs Linux)
+if platform.system() == "Windows":
+    TESSERACT_CMD = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+    TESSDATA_PREFIX = r"C:\Program Files\Tesseract-OCR\tessdata"
+    POPPLER_PATH = r"C:\Poppler\poppler-25.07.0\Library\bin"
+else:
+    # Caminhos padrão no Linux (Render/Docker)
+    TESSERACT_CMD = "/usr/bin/tesseract"
+    TESSDATA_PREFIX = "/usr/share/tesseract-ocr/4.00/tessdata"
+    POPPLER_PATH = "/usr/bin"  # Onde o poppler-utils instala o pdftoppm
 
 pytesseract.tesseract_cmd = TESSERACT_CMD
 os.environ["TESSDATA_PREFIX"] = TESSDATA_PREFIX
-os.environ["PATH"] += os.pathsep + r"C:\Program Files\Tesseract-OCR"
+os.environ["PATH"] += os.pathsep + POPPLER_PATH
+
 
 app = FastAPI(
     title="PDF OCR Webhook",
